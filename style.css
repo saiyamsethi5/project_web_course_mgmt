@@ -1,9 +1,9 @@
-div#main{
+div#main {
 	width: 100%;
 	min-width: 500px;
 }
 
-div#selectedCourses{
+div#selectedCourses {
 	position: fixed;
 	width: 28%;
 	height: 100vh;
@@ -17,7 +17,7 @@ div#selectedCourses{
 	z-index: 1;
 }
 
-#smallModifyButton{
+#smallModifyButton {
 	background-color: #4CAF50;
 	color: white;
 
@@ -36,7 +36,7 @@ div#selectedCourses{
 	border-radius: 8px;
 }
 
-#smallDeleteButton{
+#smallDeleteButton {
 	background-color: red;
 	color: white;
 
@@ -61,7 +61,7 @@ div#searchDiv {
 	max-height: 10%;
 }
 
-#buttonHome{
+#buttonHome {
 	margin-left: 0px;
 	background-color: #1E4C88;
 	color: white;
@@ -71,27 +71,28 @@ div#searchDiv {
 	font-size: 14px;
 	border: 2px solid black;
 	cursor: pointer;
-	text-align:center;
+	text-align: center;
 }
 
 #courseSearch {
-	text-align:center;
+	text-align: center;
 	height: 45px;
 	width: 35%;
-	font-size: 16px; /* Increase font-size */
+	font-size: 16px;
+	/* Increase font-size */
 	border: 2px solid black;
 	float: right;
 }
 
-div#centerDiv{
-	padding:0 28%;
+div#centerDiv {
+	padding: 0 28%;
 	position: relative;
 	margin-left: 10px;
 	margin-right: 20px;
 	height: 100vh;
 }
 
-div#courseDetails{
+div#courseDetails {
 	position: fixed;
 	width: 28%;
 	height: 70vh;
@@ -105,7 +106,7 @@ div#courseDetails{
 	align-items: center;
 }
 
-div #enrollmentDetails{
+div #enrollmentDetails {
 	position: fixed;
 	width: 28%;
 	height: 30vh;
@@ -119,21 +120,23 @@ div #enrollmentDetails{
 	align-items: center;
 }
 
-#cores, #tuts, #labs{
+#cores,
+#tuts,
+#labs {
 	min-width: 100%;
 	font-size: 20px;
 }
 
-#semesterDropdown{
+#semesterDropdown {
 	min-width: 15%;
 	font-size: 20px;
 }
 
-#courseOption{
+#courseOption {
 	text-align: center;
 }
 
-#buttonDiv{
+#buttonDiv {
 	position: relative;
 	min-width: 30\%;
 	bottom: 1%;
@@ -145,7 +148,7 @@ div #enrollmentDetails{
 	justify-content: center;
 }
 
-#addButton{
+#addButton {
 	background-color: #4CAF50;
 	color: white;
 	padding: 16px;
@@ -158,64 +161,77 @@ div #enrollmentDetails{
 
 }
 
-#success{
+#success {
 	color: #4CAF50;
 	font-weight: bold;
 }
 
-#error{
+#error {
 	color: red;
 	font-weight: bold;
-	margin:10px;
+	margin: 10px;
 }
 
-table#courseData{
-	border-collapse: collapse; /* Collapse borders */
-width: 100%; /* Full-width */
-border: 1px solid #ddd; /* Add a grey border */
-font-size: 18px; /* Increase font-size */
+table#courseData {
+	border-collapse: collapse;
+	/* Collapse borders */
+	width: 100%;
+	/* Full-width */
+	border: 1px solid #ddd;
+	/* Add a grey border */
+	font-size: 18px;
+	/* Increase font-size */
 }
 
-th, td{
-	text-align: left; /* Left-align text */
-padding: 12px; /* Add padding */
+th,
+td {
+	text-align: left;
+	/* Left-align text */
+	padding: 12px;
+	/* Add padding */
 }
 
-tr{
+tr {
 	border-bottom: 1px solid #ddd;
 }
 
-tr.header, tr:hover {
-background-color: #f1f1f1;
+tr.header,
+tr:hover {
+	background-color: #f1f1f1;
 }
 
 
-@media screen and (max-width: 1280px){
-	div#selectedCourses, div#courseDetails{
+@media screen and (max-width: 1280px) {
+
+	div#selectedCourses,
+	div#courseDetails {
 		width: 250px;
 	}
-	div#centerDiv{
+
+	div#centerDiv {
 		padding: 0px 250px;
 	}
 
 }
 
-div#main{
+div#main {
 	width: 100%;
 	min-width: 500px;
 }
-div.centerDiv{
+
+div.centerDiv {
 	background-color: #1E4C88;
 	border: 2px solid black;
 	margin-left: -10px;
 	margin-top: -10px;
-	text-align:center;
+	text-align: center;
 	height: 100vh;
 	display: flex;
 	align-items: center;
 	padding-left: 25px;
 }
-div#myCourses{
+
+div#myCourses {
 	position: fixed;
 	width: 30%;
 	min-width: 300px;
@@ -227,22 +243,23 @@ div#myCourses{
 	border-left: 1px solid gray;
 	text-align: left;
 }
-p.myCourseItem{
+
+p.myCourseItem {
 	padding: 0px 20px;
 }
 
-#currentCourses{
+#currentCourses {
 	width=30%;
 }
 
-#viewTimeTableDiv{
+#viewTimeTableDiv {
 	position: fixed;
 	width: 30%;
 	height: 10%;
 	bottom: 0;
 }
 
-button.largeButton{
+button.largeButton {
 	height: 320px;
 	width: 30%;
 	display: inline-block;
@@ -252,7 +269,7 @@ button.largeButton{
 	border-radius: 30px;
 }
 
-#statusColumn{
+#statusColumn {
 	background-image: url(img/plus_image.png);
 }
 
@@ -283,15 +300,15 @@ button.largeButton{
 }
 
 
-button#buttonViewTimetable{
+button#buttonViewTimetable {
 	background-image: url(img/timetable_icon.png);
 	background-size: 25px 25px;
 
 	background-repeat: no-repeat;
-	background-position:5% 50%;
+	background-position: 5% 50%;
 	background-color: #E9BA0A;
 
-	display:block;
+	display: block;
 	width: 95%;
 	height: 60px;
 	margin-top: 5%;
@@ -306,7 +323,9 @@ button#buttonViewTimetable{
 	text-align: center;
 }
 
-#buttonBackHome, #buttonBackHomeHistory, #buttonGenerate{
+#buttonBackHome,
+#buttonBackHomeHistory,
+#buttonGenerate {
 	margin-left: 0px;
 	margin-top: 0px;
 	background-color: #1E4C88;
@@ -317,22 +336,24 @@ button#buttonViewTimetable{
 	font-size: 14px;
 	border: 2px solid black;
 	cursor: pointer;
-	text-align:center;
+	text-align: center;
 }
 
-button.mediumButton{
+button.mediumButton {
 	margin: 30px;
 	padding: 30px;
 }
 
 }
-table{
-	border-collapse:collapse;
+
+table {
+	border-collapse: collapse;
 	width: 100%;
 	margin-top: 2em;
 }
 
-th, td{
+th,
+td {
 	border: 1px solid #dddddd;
 	height: 20px;
 	text-align: center;
@@ -343,16 +364,17 @@ th, td{
 	height: 10%;
 }
 
-#courseHistory th, #courseHistory td{
+#courseHistory th,
+#courseHistory td {
 	height: 30%;
 	width: 20%;
 	text-align: center;
 }
 
-th{
+th {
 	background-color: #cccccc;
 }
 
-#viewTimetable{
+#viewTimetable {
 	width: 69.5%;
 }
