@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="data.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css"></link>
+	</head>
+
+	<body onload="GenerateCourseTable(); GenerateCourseTable(); addRowHandlers()">
+		<div id="main">
+			<div class="centerDiv" id="buttonHolder">
+				<button class="largeButton" id="testButton">ADD-MODIFY COURSES</button>
+				<button class="largeButton" id="historyButton">COURSE HISTORY</button>
+			</div>
+			<div id="viewTimetable">
+				<form style="border: 1px solid black; width: 99%; padding: 5px; height: 52px;">
+					<button class="mediumButton" type="button" id="buttonBackHome" style="margin-right: 50%;">HOME</button>
+					<div style="float: right; padding-top: 13px; padding-right: 5px;">
+					<b>Select Term:</b>
+						<select id="semesterDropdown" name="semester1" onchange="GenerateTimetable(); return false;">
+							<option value="Fall 2017">Fall 2017</option>
+							<option value="Winter 2018">Winter 2018</option>
+						</select>
+					</div>
+				</form>
+				<table id="timetable"></table>
+			</div>
+			<div id="myCourses">
+				<h1 align = "center">
+					My Current Courses
+				</h1>
+				<div id="currentCourses">
+					<h2 align='center'>Please Enroll in a Course</h2>
+				</div>
+				<div id="viewTimeTableDiv">
+					<button id="buttonViewTimetable" >VIEW TIMETABLE</button>
+				</div>
+			</div>
+		</div>
+		<div id="addCourses">
+			<div id="selectedCourses">
+				<h1 align = "center">Selected Courses</h1>
+				<h3 align = "center">
+					Please Enroll in a Course
+				</h3>
+			</div>
+			<div id="centerDiv">
+				<div id="searchDiv">
+					<button id="buttonHome" onclick=goHome()>HOME</button>
+					<input type="text" id="courseSearch" onkeyup="searchCourses()" placeholder="Search for a Course">
+				</div>
+
+
+				<table id="courseData" >
+				</table>
+			</div>
+
+			<div id="courseDetails">
+				<h1 align = "center">
+					Course Details
+				</h1>
+				<h3 align = "center">
+					Please Select a Course
+				</h3>
+			</div>
+			<div id="enrollmentDetails">
+				<h2 align = "center"><u>
+
+				</u></h2>
+			</div>
+		</div>
+		<div id="viewCourseHistory">
+			<button class="mediumButton" id="buttonBackHomeHistory">Home</button>
+			<table id="courseHistory">
+			</table>
+		</div>
+	</body>
+
+	<script>
+		function GenerateCourseHistory(){
+			var tableDOM = $("#courseHistory");
+			tableDOM.html(""); //clear
+			tableDOM.append("<tr><th>Subject</th><th>Course Code</th><th>Course Name</th><th>Term Completed</th><th>Grade Achieved</th><th>Credits Received</th></tr>");
+
+			for (var i = 0; i < userData.courseHistory.length; i++){
+				var ch = userData.courseHistory[i];
+				var cd = courseData[ch.courseID];
+
+
+				tableDOM.append("<tr>" 									+
+									"<td>" + cd.subject + "</td>" 		+
+									"<td>" + cd.courseCode + "</td>" 	+
+									"<td>" + cd.courseName + "</td>" 	+
+									"<td>" + ch.term + "</td>" 			+
+									"<td>" + ch.grade + "</td>" 		+
+									"<td>" + ch.units + "</td>" 		+
+								"</tr>"
+								)
+			}
+
+		}
+
+		function GenerateTimetable(){
+			var selectedSemester = $("#semesterDropdown option:selected").val();
+
+
+			var tableDOM = $("#timetable");
+			tableDOM.html("");
+			tableDOM.append("<tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr>");
+			for (var i = 0; i < 15; i++){ //classes run for 15 hours, split into 30 minute intervals
+				var html = "<tr>";
+				html += "<th rowspan='2'>" + timetableLabel[Math.floor(i)] + "</th>";
+				//tableDOM.append("<th rowspan='2'>" + timetableLabel[Math.floor(i)] + "</th>");
+				//Populate days (horizontally)
+				for (var j = 1; j <= 5; j++){
+					var dateTimeID = "h" + (i+8) + "d" + j;
+					//tableDOM.append("<td class='timetableCell' id='" + dateTimeID + "'></td>");
+					html += "<td class='timetableCell' id='" + dateTimeID + "'></td>";
+				}
+
+				html += "</tr><tr>";
+				//Populate days (horizontally)
+				for (var j = 1; j <= 5; j++){
+					var dateTimeID = "h" + (i+8.5) + "d" + j;
+					//tableDOM.append("<td class='timetableCell' id='" + dateTimeID + "'></td>");
+					html += "<td class='timetableCell' id='" + dateTimeID + "'></td>";
+				}
+				//tableDOM.append("</tr>");
+				html += "</tr>";
+
+				tableDOM.append(html);
+			}
+
+			for (var i = 0; i < selectedCourses.length; i++){
+				if (selectedCourses[i]["term"] != selectedSemester) continue;
+
+				var core = selectedCourses[i]["core"];
+				var lab = selectedCourses[i]["lab"];
+				var tutorial = selectedCourses[i]["tutorial"];
+				var label = selectedCourses[i]["subject"] + " " + selectedCourses[i]["courseCode"];
+				fillSlot(label + "<br>Core", core, "#5dd65d");
+				fillSlot(label + "<br>Lab", lab, "#6767ff");
+				fillSlot(label + "<br>Tutorial", tutorial, "#b6e4ff");
+			}
+
+		}
+
+		function fillSlot(label, date, color){
+
+			if (date == "N/A") return;
+
+			date = date.replace("Mon", "1").replace("Tue", "2").replace("Wed", "3").replace("Thurs", "4").replace("Fri" , "5");
+
+			var regex = /([\d ]*):[ ]*(\d*\d)\d\d[ ]*-[ ]*(\d*\d)\d\d/g;
+
+			var match = regex.exec(date);
+
+			var days = match[1].split(" ");
+
+			var startTime = parseFloat(match[2]);
+			var endTime = parseFloat(match[3]);
+			var startTimeStr = ((startTime > 12) ? startTime - 12 : startTime).toString();
+			var endTimeStr = ((endTime > 12) ? endTime - 12 : endTime).toString();
+
+			if (startTime < 19){
+				startTime += 0.5;
+				startTimeStr += ":30";
+				endTime += 0.5;
+				endTimeStr += ":20";
+
+				if (startTime >= 12){
+					startTimeStr += "PM";
+					endTimeStr += "PM";
+				} else if (endTime >= 12){
+					endTimeStr += "PM";
+				} else {
+					startTimeStr += "AM";
+					endTimeStr += "AM";
+				}
+
+			} else {
+				startTimeStr += ":00PM";
+				endTimeStr += ":00PM";
+			}
+
+			var curTime = startTime; //modify this value, not startTime
+			var duration = endTime - startTime;
+
+			for (var time = 1; time <= duration*2; time++){
+
+				for (var i = 0; i < days.length; i++){
+					var dtID = "#h" + curTime + "d" + days[i];
+					dtID = dtID.replace(".","\\.");
+					if (curTime == startTime){
+						$(dtID).attr("rowspan", "" + (duration*2));
+						$(dtID).attr("style", "background-color:" + color + "; border: 2px double black;" );
+						$(dtID).html(label + "<br>" + startTimeStr + "-" + endTimeStr);
+
+					} else {
+						$(dtID).remove();
+					}
+
+				}
+				curTime += 0.5;
+			}
+		}
+
+		function goHome(){
+			$("#main").show();
+			$("#buttonHolder").show();
+			$("#buttonViewTimetable").show();
+			$("#viewTimetable").hide();
+			$("#viewCourseHistory").hide();
+			$("#addCourses").hide();
+		}
+
+		function searchCourses() {
+				// Declare variables
+				var input, filter, table, tr, td, i;
+				input = document.getElementById("courseSearch");
+				filter = input.value.toUpperCase();
+				table = document.getElementById("courseData");
+				tr = table.getElementsByTagName("tr");
+
+				// Loop through all table rows, and hide those who don't match the search query
+				for (i = 0; i < tr.length; i++) {
+					td = tr[i].getElementsByTagName("td")[0];
+					if (td) {
+						if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+							tr[i].style.display = "";
+						} else {
+							td = tr[i].getElementsByTagName("td")[1];
+							if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+								tr[i].style.display = "";
+							} else {
+								td = tr[i].getElementsByTagName("td")[2];
+								if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+									tr[i].style.display = "";
+								} else {
+									td = tr[i].getElementsByTagName("td")[3];
+									if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+										tr[i].style.display = "";
+									} else {
+										tr[i].style.display = "none";
+									}
+								}
+							}
+						}
+					}
+				}
+		}
+
+		function GenerateCourseTable(){
+			var tableDOM = $("#courseData");
+			tableDOM.html(""); //clear
+			tableDOM.append("<caption style='padding-bottom:10px;'><b>AVAILABLE COURSES</b></caption><tr><th onclick='sortTable(0)'>Subject &#9660;</th><th onclick='sortTable(1)'>Course Code &#9660;</th><th onclick='sortTable(2)'>Course Name <br>&#9660;</th><th onclick='sortTable(3)'>Term Offered &#9660;</th><th onclick='sortTable(4)'>Status &#9660;</th></tr>");
+
+			for (courses in courseData){
+				if (courseData[courses]["status"] == "good"){
+					statusImage = "<img src='img/check_mark.png' style='width:20px;height:20px;'>";
+				}
+				if (courseData[courses]["conflict_status"] == "good"){
+					statusImage = "<img src='img/check_mark.png' style='width:20px;height:20px;'>";
+				}
+				if (courseData[courses]["status"] == "bad"){
+					statusImage = "<img src='img/red_cross.png' style='width:20px;height:20px;'>";
+				}
+				if (courseData[courses]["conflict_status"] == "bad"){
+					statusImage = "<img src='img/red_cross.png' style='width:20px;height:20px;'>";
+				}
+
+				tableDOM.append("<tr>" 									+
+									"<td>" + courseData[courses]["subject"] + "</td>" 	+
+									"<td>" + courseData[courses]["courseCode"] + "</td>" 	+
+									"<td>" + courseData[courses]["courseName"] + "</td>" 	+
+									"<td>" + courseData[courses]["term"] + "</td>" 	+
+									"<td>" + statusImage + "</td>" 	+
+								"</tr>"
+				)
+			}
+		}
+
+		function addRowHandlers() {
+	    var table = document.getElementById("courseData");
+	    var rows = table.getElementsByTagName("tr");
+
+	    for (i = 0; i < rows.length; i++) {
+	      var currentRow = table.rows[i];
+
+	      var createClickHandler =
+	      function(row){
+	        return function() {
+	          var cell1 = row.getElementsByTagName("td")[0];
+						var cell2 = row.getElementsByTagName("td")[1];
+
+						var subject = cell1.innerHTML;
+						var course_code = cell2.innerHTML;
+
+						updateCourseDetails(subject, course_code, false);
+	      		};
+  				};
+    		currentRow.onclick = createClickHandler(currentRow);
+    	}
+		}
+
+		function sortTable(n) {
+		  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+		  table = document.getElementById("courseData");
+		  switching = true;
+
+
+
+			if (table.rows[0].cells[n].innerHTML.indexOf ('\u25bc') != -1){
+				table.rows[0].cells[n].innerHTML = table.rows[0].cells[n].innerHTML.substring(0, table.rows[0].cells[n].innerHTML.indexOf('\u25bc'));
+				table.rows[0].cells[n].innerHTML = table.rows[0].cells[n].innerHTML + "&#9650";
+			}
+			else if (table.rows[0].cells[n].innerHTML.indexOf ('\u25b2') != -1){
+				table.rows[0].cells[n].innerHTML = table.rows[0].cells[n].innerHTML.substring(0, table.rows[0].cells[n].innerHTML.indexOf('\u25b2'));
+				table.rows[0].cells[n].innerHTML = table.rows[0].cells[n].innerHTML + "&#9660";
+			}
+
+
+		  // Set the sorting direction to ascending:
+		  dir = "asc";
+		  /* Make a loop that will continue until
+		  no switching has been done: */
+		  while (switching) {
+		    // Start by saying: no switching is done:
+		    switching = false;
+		    rows = table.getElementsByTagName("TR");
+		    /* Loop through all table rows (except the
+		    first, which contains table headers): */
+		    for (i = 1; i < (rows.length - 1); i++) {
+		      // Start by saying there should be no switching:
+		      shouldSwitch = false;
+		      /* Get the two elements you want to compare,
+		      one from current row and one from the next: */
+		      x = rows[i].getElementsByTagName("TD")[n];
+		      y = rows[i + 1].getElementsByTagName("TD")[n];
+		      /* Check if the two rows should switch place,
+		      based on the direction, asc or desc: */
+		      if (dir == "asc") {
+		        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+		          // If so, mark as a switch and break the loop:
+		          shouldSwitch= true;
+		          break;
+		        }
+		      } else if (dir == "desc") {
+		        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+		          // If so, mark as a switch and break the loop:
+		          shouldSwitch= true;
+		          break;
+		        }
+		      }
+		    }
+		    if (shouldSwitch) {
+		      /* If a switch has been marked, make the switch
+		      and mark that a switch has been done: */
+		      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+		      switching = true;
+		      // Each time a switch is done, increase this count by 1:
+		      switchcount ++;
+		    } else {
+		      /* If no switching has been done AND the direction is "asc",
+		      set the direction to "desc" and run the while loop again. */
+		      if (switchcount == 0 && dir == "asc") {
+		        dir = "desc";
+		        switching = true;
+		      }
+		    }
+		  }
+		}
+
+		function generateData(event, selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm) {
+			var valueChangedTo = document.getElementById("cores").value;
+			if (valueChangedTo.indexOf ("CONFLICT") != -1){
+				for (courses in courseData){
+					if (courseData[courses]["subject"] == selectedSubject){
+						if (courseData[courses]["courseCode"] == selectedCourseCode){
+							courseData[courses]["conflict_status"] = "bad";
+							GenerateCourseTable();
+							addRowHandlers();
+						}
+					}
+				}
+				checkCourseConflicts("bad");
+				updateMessagePanel(selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm);
+			}
+			else{
+				for (courses in courseData){
+					if (courseData[courses]["subject"] == selectedSubject){
+						if (courseData[courses]["courseCode"] == selectedCourseCode){
+							courseData[courses]["conflict_status"] = "good";
+							GenerateCourseTable();
+							addRowHandlers();
+						}
+					}
+				}
+				checkCourseConflicts("good");
+				updateMessagePanel(selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm);
+			}
+
+
+		}
+
+		function updateCourseDetails(subject, course_code, modifyMode, updateMode){
+			var panelDOM = $("#courseDetails");
+			panelDOM.html("<h1 align='center'> Course Details </h1>"); //clear
+
+			for (courses in courseData){
+				if (subject == courseData[courses]["subject"]){
+					if (course_code == courseData[courses]["courseCode"]){
+						var selectedSubject = courseData[courses]["subject"];
+						var selectedCourseCode = courseData[courses]["courseCode"];
+						var selectedCourseName = courseData[courses]["courseName"];
+						var selectedCourseTerm = courseData[courses]["term"];
+						var selectedCourseDesc = courseData[courses]["courseDesc"];
+						var selectedCourseSeats = courseData[courses]["avail_seats"];
+
+						var selectedCourseCores = String(courseData[courses]["coreTime"]);
+						var selectedCourseTuts = String(courseData[courses]["tutTime"]);
+						var selectedCourseLabs = String(courseData[courses]["labTime"]);
+
+						panelDOM.append("<h2 align='center'>" + selectedSubject + " " + selectedCourseCode + "</h2>");
+						panelDOM.append("<h3 align='center'>" + selectedCourseName + "</h3>");
+						panelDOM.append("<h4 align='center'>" + "Term Offered: " + selectedCourseTerm + "</h4>");
+						panelDOM.append("<p align='center'>" + selectedCourseDesc + "</p>");
+						panelDOM.append("<br/>");
+
+						if (selectedCourseCores.indexOf(",") != -1){
+							var items = "";
+							var conflict = false;
+							for (i = 0; i < selectedCourseCores.split(",").length; i++){
+								if (selectedCourses.length > 0){
+									for (j = 0; j < selectedCourses.length; j++){
+										if (selectedCourses[j]["core"] == selectedCourseCores.split(",")[i]){
+											if (selectedCourses[j]["subject"] != selectedSubject){
+												if (selectedCourses[j]["courseCode"] != selectedCourseCode){
+													conflict = true;
+													break;
+												}
+											}
+										}
+										else{
+											conflict = false;
+										}
+									}
+									if (conflict){
+										items = items + "<option id='courseOption'>" + selectedCourseCores.split(",")[i] + " -- COURSE CONFLICT -- " + selectedCourses[j]["subject"] + " " + selectedCourses[j]["courseCode"] + "</option>";
+									}
+									else {
+										items = items + "<option id='courseOption'>" + selectedCourseCores.split(",")[i] + "</option>";
+									}
+								}
+								else {
+									items = items + "<option id='courseOption'>" + selectedCourseCores.split(",")[i] + "</option>";
+								}
+							}
+							if (items == ""){
+								items = "N/A";
+							}
+							panelDOM.append("<h4> CORE: </h4>");
+							panelDOM.append("<form><select id='cores'>" + items + "</select></form>");
+							var menu = document.getElementById("cores");
+							menu.addEventListener("change", function(){
+							    generateData("", selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm);
+							}, false);
+						}
+						else{
+							var items = "";
+							var conflict = false;
+							if (selectedCourses.length > 0){
+								for (j = 0; j < selectedCourses.length; j++){
+									if (selectedCourses[j]["core"] == selectedCourseCores){
+										if (selectedCourses[j]["subject"] != selectedSubject){
+											if (selectedCourses[j]["courseCode"] != selectedCourseCode){
+												conflict = true;
+												break;
+											}
+										}
+									}
+									else{
+										conflict = false;
+									}
+								}
+								if (conflict){
+									items = items + "<option id='courseOption'>" + selectedCourseCores + " -- COURSE CONFLICT -- " + selectedCourses[j]["subject"] + " " + selectedCourses[j]["courseCode"] + "</option>";
+								}
+								else {
+									items = items + "<option id='courseOption'>" + selectedCourseCores + "</option>";
+								}
+							}
+							else {
+								items = items + "<option id='courseOption'>" + selectedCourseCores + "</option>";
+							}
+
+							if (selectedCourseCores == ""){
+								items = "N/A";
+							}
+							panelDOM.append("<h4> CORE: </h4>");
+							panelDOM.append("<form><select id='cores'>" + items + "</select></form>");
+							var menu = document.getElementById("cores");
+							menu.addEventListener("change", function(){
+							    generateData("", selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm);
+							}, false);
+						}
+
+						if (selectedCourseTuts.indexOf(",") != -1){
+							var items = "";
+							for (i = 0; i < selectedCourseTuts.split(",").length; i++){
+									items = items + "<option id='courseOption'>" + selectedCourseTuts.split(",")[i] + "</option>";
+							}
+							if (items == ""){
+								items = "N/A";
+							}
+							panelDOM.append("<h4> TUTORIAL: </h4>");
+							panelDOM.append("<form id='courseForm'><select id='tuts'>" + items + "</select></form>")
+						}
+						else{
+							if (selectedCourseTuts == ""){
+								selectedCourseTuts = "N/A";
+							}
+							panelDOM.append("<h4> TUTORIAL: </h4>");
+							panelDOM.append("<form id='courseForm'><select id='tuts'><option id='courseOption'>" + selectedCourseTuts + "</option></select></form>")
+						}
+
+						if (selectedCourseLabs.indexOf(",") != -1){
+							var items = "";
+							for (i = 0; i < selectedCourseLabs.split(",").length; i++){
+									items = items + "<option id='courseOption'>" + selectedCourseLabs.split(",")[i] + "</option>";
+							}
+							if (items == ""){
+								items = "N/A";
+							}
+							panelDOM.append("<h4> LAB: </h4>");
+							panelDOM.append("<form id='courseForm'><select id='labs'>" + items + "</select></form>")
+						}
+						else{
+							if (selectedCourseLabs == ""){
+								selectedCourseLabs = "N/A";
+							}
+							panelDOM.append("<h4> LAB: </h4>");
+							panelDOM.append("<form id='courseForm'><select id='labs'><option id='courseOption'>" + selectedCourseLabs + "</option></select></form>")
+						}
+
+						updateMessagePanel(selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm);
+					}
+				}
+			}
+		}
+
+		function updateMessagePanel(selectedSubject, selectedCourseCode, modifyMode, selectedCourseSeats, selectedCourseTerm){
+			//Check if course was taken before (in history)
+			//then check for number of seats
+			//TO-DO: then check for conflicts (After selected courses is done)
+			var panelDOM = $("#enrollmentDetails"); //element ID of the div
+			panelDOM.html("<h2 align='center'><u> Enrollment Status </u></h2>"); //clear
+			var canEnroll = true;
+
+
+			for (var i = 0; i < userData.courseHistory.length; i++){
+					if (courses == userData.courseHistory[i]["courseID"]){
+						//course was taken in the past
+						panelDOM.append("<h3 align='center' id='error'> Unable to Enroll - Course Credit Already Received </h3>"); //appending to the div
+						panelDOM.append("<h4 align='center' id='error'> Term Completed: " + userData.courseHistory[i]["term"] + "</h4>");
+						panelDOM.append("<h4 align='center' id='error'> Grade Received: " + userData.courseHistory[i]["grade"] + "</h4>");
+						canEnroll = false;
+					}
+			}
+
+			if (!modifyMode){
+				for (var i = 0; i < selectedCourses.length; i++){
+					if (selectedSubject == selectedCourses[i]["subject"]){
+						if (selectedCourseCode == selectedCourses[i]["courseCode"]){
+							panelDOM.append("<h3 align='center' id='error'> Unable to Enroll - Already Enrolled <br/>Modify the Course to Make Any Adjustments</h3>");
+							canEnroll = false;
+						}
+					}
+				}
+			}
+
+
+			if (document.getElementById('cores').value.indexOf ("CONFLICT") != -1){
+				canEnroll = false;
+				panelDOM.append("<h3 align='center' id='error'> Unable to Enroll - Course Conflict <br/></h3>");
+			}
+
+
+			if (selectedCourseSeats == "0"){
+				panelDOM.append("<h3 align='center' id='error'> Unable to Enroll - No Available Seats </h3>");
+				canEnroll = false;
+			}
+
+
+			if (canEnroll){
+					panelDOM.append("<h3 align='center' id='success'>Ready to Enroll</h3>");
+
+					selectedCourseTerm = encodeURI(selectedCourseTerm);
+
+					if (modifyMode){
+						panelDOM.append("<div id='buttonDiv'><button id='addButton' onclick=addSelectedCourse('" + selectedSubject + "','" + selectedCourseCode + "','" + selectedCourseTerm + "','" + '' + "','" + '' + "','" + '' + "','" + modifyMode + "')> Modify Course </button></div>");
+					}
+					else{
+						panelDOM.append("<div id='buttonDiv'><button id='addButton' onclick=addSelectedCourse('" + selectedSubject + "','" + selectedCourseCode + "','" + selectedCourseTerm + "','" + '' + "','" + '' + "','" + '' + "','" + modifyMode + "');> Add Course </button></div>");
+					}
+			}
+		}
+
+		function checkCourseConflicts(statusToSet){
+			for (courses in courseData){
+				if (courseData[courses]["coreTime"].length > 1){
+					var items = "";
+					var conflict = false;
+					for (i = 0; i < courseData[courses]["coreTime"].length; i++){
+						if (selectedCourses.length > 0){
+							for (j = 0; j < selectedCourses.length; j++){
+								if (courseData[courses]["coreTime"][i] == selectedCourses[j]["core"]){
+									if (courseData[courses]["subject"] != selectedCourses[j]["subject"]){
+										if (courseData[courses]["courseCode"] != selectedCourses[j]["courseCode"]){
+											conflict = true;
+											break;
+										}
+									}
+								}
+								else{
+									conflict = false;
+								}
+							}
+							if (conflict){
+								courseData[courses]["conflict_status"] = "bad";
+								GenerateCourseTable();
+								addRowHandlers();
+							}
+							else {
+								courseData[courses]["conflict_status"] = "good";
+								GenerateCourseTable();
+								addRowHandlers();
+							}
+						}
+						else{
+							courseData[courses]["conflict_status"] = "good";
+							GenerateCourseTable();
+							addRowHandlers();
+						}
+					}
+				}
+				else{
+					var items = "";
+					var conflict = false;
+					if (selectedCourses.length > 0){
+						for (j = 0; j < selectedCourses.length; j++){
+							if (selectedCourses[j]["core"] == courseData[courses]["coreTime"]){
+								if (selectedCourses[j]["subject"] != courseData[courses]["subject"]){
+									if (selectedCourses[j]["courseCode"] != courseData[courses]["courseCode"]){
+										conflict = true;
+										break;
+									}
+								}
+							}
+							else{
+								conflict = false;
+							}
+						}
+						if (conflict){
+							courseData[courses]["conflict_status"] = "bad";
+							GenerateCourseTable();
+							addRowHandlers();
+						}
+						else {
+							courseData[courses]["conflict_status"] = "good";
+							GenerateCourseTable();
+							addRowHandlers();
+						}
+					}
+					else {
+						courseData[courses]["conflict_status"] = "good";
+						GenerateCourseTable();
+						addRowHandlers();
+					}
+				}
+			}
+		}
+
+		function loadCurrentCourses(){
+
+			var fallCourses="";
+			var winterCourses = "";
+			for (var i = 0; i < selectedCourses.length; i++){
+				var courseName = courseData[(selectedCourses[i]["subject"] + "_" + selectedCourses[i]["courseCode"]).toLowerCase()].courseName;
+
+				if (selectedCourses[i].term == "Fall 2017"){
+					fallCourses += "<div style='display:inline-flex;'>" +
+								"<p class='myCourseItem'> <b>" 		+
+									selectedCourses[i]["subject"] + " " + selectedCourses[i]["courseCode"] + "<br>" +
+								"</b></p>" +
+								"<p class='myCourseItem'>"		+
+									"Core: " + selectedCourses[i]["core"] + "<br>";
+
+					if (selectedCourses[i]["tutorial"] != "N/A"){
+						fallCourses += "Tutorial: " + selectedCourses[i]["tutorial"]  + "<br>";
+					}
+
+					if (selectedCourses[i]["lab"] != "N/A"){
+						fallCourses += "Lab: " + selectedCourses[i]["lab"] + "<br>";
+					}
+
+					fallCourses+= "</p></div>";
+				} else {
+					winterCourses += "<div style='display:inline-flex;'>" +
+								"<p class='myCourseItem'> <b>" 		+
+									selectedCourses[i]["subject"] + " " + selectedCourses[i]["courseCode"] + "<br>" +
+								"</b></p>" +
+								"<p class='myCourseItem'>"		+
+									"Core: " + selectedCourses[i]["core"] + "<br>";
+
+					if (selectedCourses[i]["tutorial"] != "N/A"){
+						winterCourses += "Tutorial: " + selectedCourses[i]["tutorial"]  + "<br>";
+					}
+
+					if (selectedCourses[i]["lab"] != "N/A"){
+						winterCourses += "Lab: " + selectedCourses[i]["lab"] + "<br>";
+					}
+
+					winterCourses+= "</p></div>";
+				}
+			}
+
+			var html = "<h2 align='center'>Fall 2017</h2>" + fallCourses + "<h2 align='center'>Winter 2018</h2>" + winterCourses;
+
+			$("#currentCourses").html(html);
+		}
+
+		function addSelectedCourse(subject, course_code, term, core, tutorial, lab, modifyMode){
+			term = decodeURI(term);
+
+			core = document.getElementById('cores').value;
+			tutorial = document.getElementById('tuts').value;
+			lab = document.getElementById('labs').value;
+
+
+			if (modifyMode == "true"){
+				//modify the adjustments to the course
+				for (i = 0; i < selectedCourses.length; i++){
+					if (selectedCourses[i]["subject"] == subject){
+						if (selectedCourses[i]["courseCode"] == course_code){
+							selectedCourses[i]["core"] = core;
+							selectedCourses[i]["tutorial"] = tutorial;
+							selectedCourses[i]["lab"] = lab;
+						}
+					}
+				}
+				checkCourseConflicts("bad");
+				updateCourseDetails(subject, course_code, false); //update screen after adding
+			}
+			else{
+				for (courses in courseData){
+					if (courseData[courses]["subject"] == subject){
+						if (courseData[courses]["courseCode"] == course_code){
+							courseData[courses]["status"] = "bad";
+						}
+					}
+				}
+				selectedCourses.push({'subject': subject, 'courseCode': course_code, 'term': term, 'core': core, 'tutorial': tutorial, 'lab': lab });
+				checkCourseConflicts("bad");
+				updateCourseDetails(subject, course_code, false); //update screen after adding
+			}
+
+			//reload the courses
+
+			loadSelectedCourses();
+			loadCurrentCourses();
+		}
+
+		function loadSelectedCourses(){
+			var panelDOM = $("#selectedCourses");
+			panelDOM.html("<h1 align='center'> Selected Courses </h1>");
+
+			panelDOM.append("<h2 align='center'>Fall 2017</h2>");
+			for (i = 0; i < selectedCourses.length; i++){
+				if (selectedCourses[i]["term"] == "Fall 2017"){
+					panelDOM.append("<h3 align='left'>" + selectedCourses[i]["subject"] + " " + selectedCourses[i]["courseCode"] + "<button id='smallDeleteButton' onclick=deleteSelectedCourse('" + selectedCourses[i]["subject"] + "','" + selectedCourses[i]["courseCode"] + "')>Delete</button>" + "<button id='smallModifyButton' onclick=modifySelectedCourse('" + selectedCourses[i]["subject"] + "','" + selectedCourses[i]["courseCode"] + "')>Modify</button>" + "</h3>");
+
+					if (selectedCourses[i]["core"] != "N/A")
+						panelDOM.append("<p align='left'>" + "<b>Core: </b>" + selectedCourses[i]["core"] + "</p>");
+					if (selectedCourses[i]["tutorial"] != "N/A")
+						panelDOM.append("<p align='left'>" + "<b>Tutorial: </b>" + selectedCourses[i]["tutorial"] + "</p>");
+					if (selectedCourses[i]["lab"] != "N/A")
+						panelDOM.append("<p align='left'>" + "<b>Lab: </b>" + selectedCourses[i]["lab"] + "</p>");
+				}
+			}
+			panelDOM.append("<h2 align='center'>Winter 2018</h2>");
+			for (i = 0; i < selectedCourses.length; i++){
+				if (selectedCourses[i]["term"] == "Winter 2018"){
+					panelDOM.append("<h3 align='left'>" + selectedCourses[i]["subject"] + " " + selectedCourses[i]["courseCode"] + "<button id='smallDeleteButton' onclick=deleteSelectedCourse('" + selectedCourses[i]["subject"] + "','" + selectedCourses[i]["courseCode"] + "')>Delete</button>" + "<button id='smallModifyButton' onclick=modifySelectedCourse('" + selectedCourses[i]["subject"] + "','" + selectedCourses[i]["courseCode"] + "')>Modify</button>" + "</h3>");
+
+					if (selectedCourses[i]["core"] != "N/A")
+						panelDOM.append("<p align='left'>" + "<b>Core: </b>" + selectedCourses[i]["core"] + "</p>");
+					if (selectedCourses[i]["tutorial"] != "N/A"){
+						panelDOM.append("<p align='left'>" + "<b>Tutorial: </b>" + selectedCourses[i]["tutorial"] + "</p>");
+					}
+					if (selectedCourses[i]["lab"] != "N/A")
+						panelDOM.append("<p align='left'>" + "<b>Lab: </b>" + selectedCourses[i]["lab"] + "</p>");
+				}
+			}
+		}
+
+		function deleteSelectedCourse (subject, courseCode){
+			checkCourseConflicts("good");
+
+			for (i = 0; i < selectedCourses.length; i++){
+				if (selectedCourses[i]["subject"] == subject){
+					if (selectedCourses[i]["courseCode"] == courseCode){
+						selectedCourses.splice(i, 1);
+						updateCourseDetails(subject, courseCode, false); //update course details panel
+						loadSelectedCourses(); //reload selected courses
+						loadCurrentCourses();
+					}
+				}
+			}
+
+			for (courses in courseData){
+				if (courseData[courses]["subject"] == subject){
+					if (courseData[courses]["courseCode"] == courseCode){
+						courseData[courses]["status"] = "good";
+						GenerateCourseTable();
+						addRowHandlers();
+					}
+				}
+			}
+		}
+
+		function modifySelectedCourse (subject, courseCode){
+			updateCourseDetails(subject, courseCode, true); //update course details panel
+		}
+
+		/*
+		window.onload=function() {
+		  document.getElementById("cores").onchange=function() {
+		    alert("change");
+		  }
+		}
+		*/
+
+		$(document).ready(function(){
+
+			$("#addCourses").hide();
+			$("#viewTimetable").hide();
+			$("#viewCourseHistory").hide();
+			$("#buttonViewTimetable").show();
+
+			$( "#testButton" ).click(function() {
+			  $( "#main").hide();
+			  $( "#addCourses").show();
+			});
+
+			$( "#testButton2" ).click(function() {
+			  $( "#main").show();
+			  $( "#addCourses").hide();
+			});
+
+			$("#buttonBackHome").click(function() {
+				$("#main").show();
+				$("#buttonHolder").show();
+				$("#viewTimetable").hide();
+				$("#viewCourseHistory").hide();
+				$("#buttonViewTimetable").show();
+			});
+
+			$("#buttonBackHomeHistory").click(function() {
+				$("#main").show();
+				$("#buttonHolder").show();
+				$("#viewTimetable").hide();
+				$("#viewCourseHistory").hide();
+				$("#buttonViewTimetable").show();
+			});
+
+			$("#historyButton").click(function() {
+				GenerateCourseHistory();
+				$("#main").hide();
+				$("#viewCourseHistory").show();
+			});
+
+			$("#buttonViewTimetable").click(function() {
+				GenerateTimetable();
+				$("#buttonHolder").hide();
+				$("#viewTimetable").show();
+				$("#buttonViewTimetable").hide();
+
+			});
+			testData.push("Dodge");
+			console.log(testData);
+		});
+	</script>
+</html>

@@ -1,0 +1,358 @@
+div#main{
+	width: 100%;
+	min-width: 500px;
+}
+
+div#selectedCourses{
+	position: fixed;
+	width: 28%;
+	height: 100vh;
+	min-height: 600px;
+	top: 0;
+	left: 0;
+	background-color: #eeeeee;
+	border-right: 1px solid gray;
+	padding-left: 10px;
+	overflow: auto;
+	z-index: 1;
+}
+
+#smallModifyButton{
+	background-color: #4CAF50;
+	color: white;
+
+	padding-left: 12px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	margin-left: 2%;
+	line-height: 0;
+
+	width: 100px;
+	height: 6px;
+
+	font-size: 14px;
+	border: 2px solid black;
+	cursor: pointer;
+	border-radius: 8px;
+}
+
+#smallDeleteButton{
+	background-color: red;
+	color: white;
+
+	padding-left: 12px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	margin-left: 2%;
+	line-height: 0;
+
+	width: 100px;
+	height: 6px;
+
+	font-size: 14px;
+	border: 2px solid black;
+	cursor: pointer;
+	border-radius: 8px;
+}
+
+div#searchDiv {
+	position: relative;
+	min-width: 44%;
+	max-height: 10%;
+}
+
+#buttonHome{
+	margin-left: 0px;
+	background-color: #1E4C88;
+	color: white;
+	padding: 16px;
+	height: 52px;
+	width: 20%;
+	font-size: 14px;
+	border: 2px solid black;
+	cursor: pointer;
+	text-align:center;
+}
+
+#courseSearch {
+	text-align:center;
+	height: 45px;
+	width: 35%;
+	font-size: 16px; /* Increase font-size */
+	border: 2px solid black;
+	float: right;
+}
+
+div#centerDiv{
+	padding:0 28%;
+	position: relative;
+	margin-left: 10px;
+	margin-right: 20px;
+	height: 100vh;
+}
+
+div#courseDetails{
+	position: fixed;
+	width: 28%;
+	height: 70vh;
+	top: 0;
+	right: 0;
+	background-color: #eeeeee;
+	border-left: 1px solid gray;
+	padding-left: 10px;
+	padding-right: 10px;
+	overflow: auto;
+	align-items: center;
+}
+
+div #enrollmentDetails{
+	position: fixed;
+	width: 28%;
+	height: 30vh;
+	bottom: 0;
+	right: 0;
+	background-color: #eeeeee;
+	border-left: 1px solid gray;
+	padding-left: 10px;
+	padding-right: 10px;
+	overflow: auto;
+	align-items: center;
+}
+
+#cores, #tuts, #labs{
+	min-width: 100%;
+	font-size: 20px;
+}
+
+#semesterDropdown{
+	min-width: 15%;
+	font-size: 20px;
+}
+
+#courseOption{
+	text-align: center;
+}
+
+#buttonDiv{
+	position: relative;
+	min-width: 30\%;
+	bottom: 1%;
+	padding-top: 30px;
+	align-items: center;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#addButton{
+	background-color: #4CAF50;
+	color: white;
+	padding: 16px;
+	font-size: 16px;
+	border: 2px solid black;
+	cursor: pointer;
+	display: block;
+	border-radius: 8px;
+	margin-left: 3%;
+
+}
+
+#success{
+	color: #4CAF50;
+	font-weight: bold;
+}
+
+#error{
+	color: red;
+	font-weight: bold;
+	margin:10px;
+}
+
+table#courseData{
+	border-collapse: collapse; /* Collapse borders */
+width: 100%; /* Full-width */
+border: 1px solid #ddd; /* Add a grey border */
+font-size: 18px; /* Increase font-size */
+}
+
+th, td{
+	text-align: left; /* Left-align text */
+padding: 12px; /* Add padding */
+}
+
+tr{
+	border-bottom: 1px solid #ddd;
+}
+
+tr.header, tr:hover {
+background-color: #f1f1f1;
+}
+
+
+@media screen and (max-width: 1280px){
+	div#selectedCourses, div#courseDetails{
+		width: 250px;
+	}
+	div#centerDiv{
+		padding: 0px 250px;
+	}
+
+}
+
+div#main{
+	width: 100%;
+	min-width: 500px;
+}
+div.centerDiv{
+	background-color: #1E4C88;
+	border: 2px solid black;
+	margin-left: -10px;
+	margin-top: -10px;
+	text-align:center;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	padding-left: 25px;
+}
+div#myCourses{
+	position: fixed;
+	width: 30%;
+	min-width: 300px;
+	height: 100vh;
+	min-height: 600px;
+	top: 0;
+	right: 0;
+	background-color: #eeeeee;
+	border-left: 1px solid gray;
+	text-align: left;
+}
+p.myCourseItem{
+	padding: 0px 20px;
+}
+
+#currentCourses{
+	width=30%;
+}
+
+#viewTimeTableDiv{
+	position: fixed;
+	width: 30%;
+	height: 10%;
+	bottom: 0;
+}
+
+button.largeButton{
+	height: 320px;
+	width: 30%;
+	display: inline-block;
+	margin: 30px;
+	font-size: 1.6em;
+	border: 4px solid black;
+	border-radius: 30px;
+}
+
+#statusColumn{
+	background-image: url(img/plus_image.png);
+}
+
+#testButton {
+	background-image: url(img/plus_image.png);
+	background-size: 170px 160px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-color: #E9BA0A;
+	text-align: center;
+	padding-top: 220px;
+	color: black;
+	font-weight: bold;
+	font-size: 40px;
+}
+
+#historyButton {
+	background-image: url(img/history_image.png);
+	background-size: 170px 160px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-color: #E9BA0A;
+	text-align: center;
+	padding-top: 220px;
+	color: black;
+	font-weight: bold;
+	font-size: 40px;
+}
+
+
+button#buttonViewTimetable{
+	background-image: url(img/timetable_icon.png);
+	background-size: 25px 25px;
+
+	background-repeat: no-repeat;
+	background-position:5% 50%;
+	background-color: #E9BA0A;
+
+	display:block;
+	width: 95%;
+	height: 60px;
+	margin-top: 5%;
+	margin-left: 2.5%;
+	padding-left: 38.5px;
+
+	border: 2px solid black;
+
+	font-size: 20px;
+	color: black;
+	font-weight: bold;
+	text-align: center;
+}
+
+#buttonBackHome, #buttonBackHomeHistory, #buttonGenerate{
+	margin-left: 0px;
+	margin-top: 0px;
+	background-color: #1E4C88;
+	color: white;
+	padding: 16px;
+	height: 50px;
+	width: 12%;
+	font-size: 14px;
+	border: 2px solid black;
+	cursor: pointer;
+	text-align:center;
+}
+
+button.mediumButton{
+	margin: 30px;
+	padding: 30px;
+}
+
+}
+table{
+	border-collapse:collapse;
+	width: 100%;
+	margin-top: 2em;
+}
+
+th, td{
+	border: 1px solid #dddddd;
+	height: 20px;
+	text-align: center;
+}
+
+#timetable td {
+	width: 400px;
+	height: 10%;
+}
+
+#courseHistory th, #courseHistory td{
+	height: 30%;
+	width: 20%;
+	text-align: center;
+}
+
+th{
+	background-color: #cccccc;
+}
+
+#viewTimetable{
+	width: 69.5%;
+}
