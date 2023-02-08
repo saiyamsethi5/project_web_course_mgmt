@@ -9,8 +9,7 @@ AUTHORS:
 - Vincent Lee - 
 
 INSTRUCTIONS:
-- To launch the program - open the Index.html file with a browser of your choice.
-- Alternatively, the program can also be accessed at: http://ugweb.cas.mcmaster.ca/~sethis3/hc3/Milestone_4/index.html
+- To launch the program - open the Index.html file with a browser of your choice
 
 MODES:
 - Add-Modify Courses: Allows enrollment and modification of offered courses
